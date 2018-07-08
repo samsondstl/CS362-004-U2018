@@ -646,7 +646,7 @@ int getCost(int cardNumber)
 int smithyCardEffect(struct gameState *state, int handPos, int currentPlayer)
 {
    // +3 Cards
-   for (i = 0; i < 3; i++)
+   for (int i = 0; i < 3; i++)
 	{
 	  drawCard(currentPlayer, state);
 	}
@@ -774,7 +774,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-       return adventurer(state, temphand, currentPlayer);
+       return adventurerCardEffect(state, temphand, currentPlayer);
 			
     case council_room:
       //+4 Cards
