@@ -749,7 +749,7 @@ int embargoCardEffect(int choice1, struct gameState *state, int handPos, int cur
    state->embargoTokens[choice1]--;
 			
    // trash card
-   iscardCard(handPos, currentPlayer, state, 0);		
+   iscardCard(handPos, currentPlayer, state, 1);		
       
    return 0;
 }
