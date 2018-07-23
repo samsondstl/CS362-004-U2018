@@ -14,13 +14,13 @@ int compare(const void* a, const void* b) {
 }
 
 struct gameState* newGame() {
-  struct gameState* g = malloc(sizeof(struct gameState));
+  struct gameState* g = (struct gameState*)malloc(sizeof(struct gameState));
   return g;
 }
 
 int* kingdomCards(int k1, int k2, int k3, int k4, int k5, int k6, int k7,
 		  int k8, int k9, int k10) {
-  int* k = malloc(10 * sizeof(int));
+  int* k = (int*)malloc(10 * sizeof(int));
   k[0] = k1;
   k[1] = k2;
   k[2] = k3;
@@ -647,17 +647,17 @@ int smithyCardEffect(struct gameState *state, int handPos, int currentPlayer)
 {
    // +3 Cards
    for (int i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
+   {
+      drawCard(currentPlayer, state);
+   }
 			
    // discard card from hand
-   discardCard(handPos, currentPlayer, state, 1);
+   discardCard(handPos, currentPlayer, state, 0);
    
    return 0;
 }
 
-int adventurerCardEffect(struct gameState *state, int *temphand, int currentPlayer)
+int adventurerCardEffect(struct gameState *state, int handPos, int *temphand, int currentPlayer)
 {
    int drawntreasure = 0;
    int cardDrawn;
@@ -675,12 +675,13 @@ int adventurerCardEffect(struct gameState *state, int *temphand, int currentPlay
 	   
       cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer] - 1]; //top card of hand is most recently drawn card.
 	
-      if (cardDrawn == copper || cardDrawn == gold)
+      if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
       {
          drawntreasure++;
       }
 	   else
       {
+              z++;
 	      temphand[z] = cardDrawn;
 	      state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
 	   }   
@@ -691,7 +692,9 @@ int adventurerCardEffect(struct gameState *state, int *temphand, int currentPlay
 	   state->discard[currentPlayer][state->discardCount[currentPlayer]++] = temphand[z - 1]; // discard all cards in play that have been drawn
 	   z = z - 1;
    }
-   
+  
+   discardCard(handPos, currentPlayer, state, 0);
+ 
    return 0;
 }
 
@@ -715,8 +718,9 @@ int stewardCardEffect(int choice1, int choice2, int choice3, struct gameState *s
 	{
 	  // +2 cards
 	  drawCard(currentPlayer, state);
+          drawCard(currentPlayer, state);
 	}
-   else if (choice1 == 3)
+   else if (choice1 == 2)
 	{
 	  // +2 coins
 	  state->coins = state->coins + 2;
@@ -735,21 +739,21 @@ int stewardCardEffect(int choice1, int choice2, int choice3, struct gameState *s
 }
 
 int embargoCardEffect(int choice1, struct gameState *state, int handPos, int currentPlayer)
-{
+{			
+   // see if selected pile is in play
+   if (state->supplyCount[choice1] == -1)
+   {
+      return -1;
+   }
+
    // +2 Coins
    state->coins = state->coins + 2;
 			
-   // see if selected pile is in play
-   if (state->supplyCount[choice1] == -1)
-	{
-	   return -1;
-	}
-			
    // add embargo token to selected supply pile
-   state->embargoTokens[choice1]--;
+   state->embargoTokens[choice1]++;
 			
    // trash card
-   discardCard(handPos, currentPlayer, state, 0);		
+   discardCard(handPos, currentPlayer, state, 1);		
       
    return 0;
 }
@@ -774,7 +778,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-       return adventurerCardEffect(state, temphand, currentPlayer);
+       return adventurerCardEffect(state, handPos, temphand, currentPlayer);
 			
     case council_room:
       //+4 Cards
@@ -1275,6 +1279,8 @@ int discardCard(int handPos, int currentPlayer, struct gameState *state, int tra
 	
   //set played card to -1
   state->hand[currentPlayer][handPos] = -1;
+
+  state->discardCount[currentPlayer]++;
 	
   //remove card from player's hand
   if ( handPos == (state->handCount[currentPlayer] - 1) ) 	//last card in hand array is played
