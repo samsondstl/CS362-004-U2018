@@ -662,14 +662,54 @@ int adventurerCardEffect(struct gameState *state, int handPos, int *temphand, in
    int drawntreasure = 0;
    int cardDrawn;
    int z = 0; // this is the counter for the temp hand
- 
-   while (drawntreasure < 2)
+   
+   int i;
+   
+   int numTreasureAvailable = 0;
+   for (i = 0; i < state->deckCount[currentPlayer]; i++)
    {
-	   if (state->deckCount[currentPlayer] < 1)
-      { 
-         // if the deck is empty we need to shuffle discard and add to deck
-	      shuffle(currentPlayer, state);
-	   }
+      if (    state->deck[currentPlayer][i] == copper
+           || state->deck[currentPlayer][i] == silver
+           || state->deck[currentPlayer][i] == gold)
+      {
+         numTreasureAvailable++;
+      }  
+   }
+   for (i = 0; i < state->discardCount[currentPlayer]; i++)
+   {
+      if (    state->discard[currentPlayer][i] == copper
+           || state->discard[currentPlayer][i] == silver
+           || state->discard[currentPlayer][i] == gold)
+      {
+         numTreasureAvailable++;
+      }
+   }
+ 
+   int treasureCardsToDraw;
+   if (numTreasureAvailable >= 2)
+   {
+      treasureCardsToDraw = 2;
+   }
+   else
+   {
+      treasureCardsToDraw = numTreasureAvailable;
+   }
+ 
+   while (drawntreasure < treasureCardsToDraw)
+   {
+      if (state->deckCount[currentPlayer] < 1)
+      {
+         for (i = 0; i < state->discardCount[currentPlayer]; i++)
+         {
+            state->deck[currentPlayer][i] = state->discard[currentPlayer][i];
+            state->discard[currentPlayer][i] = -1;
+         }
+         
+         state->deckCount[currentPlayer] = state->discardCount[currentPlayer];
+         state->discardCount[currentPlayer] = 0;
+         
+         shuffle(currentPlayer, state);
+      }
 	
       drawCard(currentPlayer, state);
 	   
@@ -681,7 +721,7 @@ int adventurerCardEffect(struct gameState *state, int handPos, int *temphand, in
       }
 	   else
       {
-              z++;
+         z++;
 	      temphand[z] = cardDrawn;
 	      state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
 	   }   
