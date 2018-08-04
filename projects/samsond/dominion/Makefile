@@ -28,6 +28,43 @@ interface.o: interface.h interface.c
 randomtestadventurer: randomtestadventurer.c dominion.o rngs.o
 	gcc -o randomtestadventurer -g randomtestadventurer.c dominion.o rngs.o $(CFLAGS)
 
+randomtestadventurer.out: rngs.o dominion.o playdom randomtestadventurer FORCE
+	./randomtestadventurer &> randomtestadventurer.out
+	@echo ""               >> randomtestadventurer.out
+	gcov -b dominion.c     >> randomtestadventurer.out
+	@echo ""               >> randomtestadventurer.out
+	cat dominion.c.gcov    >> randomtestadventurer.out
+
+randomtestcard1: randomtestcard1.c dominion.o rngs.o
+	gcc -o randomtestcard1 -g randomtestcard1.c dominion.o rngs.o $(CFLAGS)
+
+randomtestcard1.out: rngs.o dominion.o playdom randomtestcard1 FORCE
+	./randomtestcard1   &> randomtestcard1.out
+	@echo ""            >> randomtestcard1.out
+	gcov -b dominion.c  >> randomtestcard1.out
+	@echo ""            >> randomtestcard1.out
+	cat dominion.c.gcov >> randomtestcard1.out
+
+randomtestcard2: randomtestcard2.c dominion.o rngs.o
+	gcc -o randomtestcard2 -g randomtestcard2.c dominion.o rngs.o $(CFLAGS)
+
+randomtestcard2.out: rngs.o dominion.o playdom randomtestcard2 FORCE
+	./randomtestcard2   &> randomtestcard2.out
+	@echo ""            >> randomtestcard2.out
+	gcov -b dominion.c  >> randomtestcard2.out
+	@echo ""            >> randomtestcard2.out
+	cat dominion.c.gcov >> randomtestcard2.out
+
+randomtestresults: rngs.o dominion.o playdom randomtestadventurer randomtestcard1 randomtestcard2 FORCE
+	./randomtestadventurer &> randomtestresults.out
+	@echo ""               >> randomtestresults.out
+	./randomtestcard1      >> randomtestresults.out
+	@echo ""               >> randomtestresults.out
+	./randomtestcard2      >> randomtestresults.out
+	gcov -b dominion.c     >> randomtestresults.out
+	@echo ""               >> randomtestresults.out
+	cat dominion.c.gcov    >> randomtestresults.out	
+
 cardtest1: cardtest1.c dominion.o rngs.o
 	gcc -o cardtest1 -g cardtest1.c dominion.o rngs.o $(CFLAGS)
 
@@ -86,4 +123,4 @@ player: player.c interface.o
 all: playdom player 
 
 clean:
-	rm -f *.o playdom.exe playdom player player.exe cardtest1 cardtest2 cardtest3 cardtest4 unittest1 unittest2 unittest3 unittest4 *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe
+	rm -f *.o playdom.exe playdom player player.exe randomtestcard1 randomtestcard2 randomtestadventurer cardtest1 cardtest2 cardtest3 cardtest4 unittest1 unittest2 unittest3 unittest4 *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe

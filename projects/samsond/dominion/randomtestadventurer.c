@@ -46,7 +46,7 @@ int main()
       prevState = state;
        
       printf("ADVENTURER: Run = %d Player = %d\n", run + 1, currPlayer + 1);
-      cardEffect(adventurer, 0, 0, 0, g, state.handCount[currPlayer] - 1, 0);
+      cardEffect(adventurer, rand() % 10, rand() % 10, rand() % 10, g, state.handCount[currPlayer] - 1, 0);
      
       int player;
       for (player = 0; player < numPlayers; player++)
